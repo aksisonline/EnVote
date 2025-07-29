@@ -1,11 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { events } from "@/lib/storage"
 
-// In-memory storage for development (replace with D1 in production)
-const events = new Map()
-
-export async function GET(request: NextRequest, { params }: { params: { name: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ name: string }> }) {
   try {
-    const eventName = params.name
+    const { name: eventName } = await params
 
     const event = Array.from(events.values()).find((e: any) => e.name === eventName)
 
@@ -20,9 +18,9 @@ export async function GET(request: NextRequest, { params }: { params: { name: st
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { name: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ name: string }> }) {
   try {
-    const eventName = params.name
+    const { name: eventName } = await params
     const body = await request.json()
 
     const event = Array.from(events.values()).find((e: any) => e.name === eventName)

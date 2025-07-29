@@ -90,37 +90,79 @@ class CloudflareClient {
     return response.json()
   }
 
-  // Placeholder methods for future implementation
-  async getUserSession(userId: string, eventId: string) {
-    return null
-  }
+  async createTask(taskData: {
+    event_id: string
+    title: string
+    type: "quiz" | "voting"
+    voting_mode: "single" | "multi"
+    time_limit: number
+    votes_required: number
+    options: Array<{
+      text: string
+      is_correct: boolean
+    }>
+  }) {
+    const response = await fetch("/api/tasks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(taskData),
+    })
 
-  async joinEvent(userId: string, eventId: string) {
-    return { vote_balance: 10 }
-  }
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to create task")
+    }
 
-  async getUserResponses(userId: string, eventId: string) {
-    return []
-  }
-
-  async getTaskWithOptions(taskId: string) {
-    return null
-  }
-
-  async createTask(eventId: string, taskData: any) {
-    return null
+    const result = await response.json()
+    return result.data
   }
 
   async startTask(taskId: string) {
-    return null
+    const response = await fetch(`/api/tasks/${taskId}/start`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to start task")
+    }
+
+    const result = await response.json()
+    return result.data
   }
 
   async endTask(taskId: string) {
-    return null
+    const response = await fetch(`/api/tasks/${taskId}/end`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to end task")
+    }
+
+    const result = await response.json()
+    return result.data
   }
 
   async getEventTasks(eventId: string) {
-    return []
+    const response = await fetch(`/api/tasks/event/${eventId}`)
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to fetch tasks")
+    }
+
+    const result = await response.json()
+    return result.data
   }
 }
 

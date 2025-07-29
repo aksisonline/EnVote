@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-
-// In-memory storage for development (replace with D1 in production)
-const events = new Map()
+import { events } from "@/lib/storage"
 
 export async function POST(request: NextRequest) {
   try {

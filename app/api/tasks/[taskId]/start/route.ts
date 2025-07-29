@@ -1,11 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { tasks } from "@/lib/storage"
 
-// In-memory storage for development (replace with D1 in production)
-const tasks = new Map()
-
-export async function POST(request: NextRequest, { params }: { params: { taskId: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ taskId: string }> }) {
   try {
-    const taskId = params.taskId
+    const { taskId } = await params
 
     const task = tasks.get(taskId)
     if (!task) {

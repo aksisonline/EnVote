@@ -1,12 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { tasks, taskOptions } from "@/lib/storage"
 
-// In-memory storage for development (replace with D1 in production)
-const tasks = new Map()
-const taskOptions = new Map()
-
-export async function GET(request: NextRequest, { params }: { params: { eventId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ eventId: string }> }) {
   try {
-    const eventId = params.eventId
+    const { eventId } = await params
 
     // Get all tasks for the event
     const eventTasks = Array.from(tasks.values()).filter((task: any) => task.event_id === eventId)

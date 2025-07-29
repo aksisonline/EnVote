@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { users } from "@/lib/storage"
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,35 +10,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email and name are required" }, { status: 400 })
     }
 
-    // Create or get user via API call to worker
-    const workerUrl = process.env.NEXT_PUBLIC_API_URL || "https://envote-app.teamscientify2016.workers.dev"
+    // Check if user already exists
+    let user = Array.from(users.values()).find((u: any) => u.email === email)
 
-    console.log("Calling worker at:", `${workerUrl}/api/users`)
-
-    const response = await fetch(`${workerUrl}/api/users`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, name }),
-    })
-
-    console.log("Worker response status:", response.status)
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error("Worker error response:", errorText)
-      
-      try {
-        const error = JSON.parse(errorText)
-        return NextResponse.json({ error: error.error || "Failed to create/get user" }, { status: response.status })
-      } catch {
-        return NextResponse.json({ error: `Worker error: ${errorText}` }, { status: response.status })
+    if (!user) {
+      // Create new user
+      user = {
+        id: crypto.randomUUID(),
+        email,
+        name,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+      users.set(user.id, user)
+    } else {
+      // Update existing user name if needed
+      if (user.name !== name) {
+        user.name = name
+        user.updated_at = new Date().toISOString()
+        users.set(user.id, user)
       }
     }
 
-    const user = await response.json()
-    console.log("User created/retrieved:", user)
     return NextResponse.json(user)
   } catch (error) {
     console.error("Error creating/getting user:", error)

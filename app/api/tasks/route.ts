@@ -1,8 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-
-// In-memory storage for development (replace with D1 in production)
-const tasks = new Map()
-const taskOptions = new Map()
+import { tasks, taskOptions } from "@/lib/storage"
 
 export async function POST(request: NextRequest) {
   try {
