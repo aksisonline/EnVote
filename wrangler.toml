@@ -6,6 +6,8 @@ compatibility_date = "2024-01-15"
 binding = "DB"
 database_name = "envote-db"
 database_id = "da083bd0-44d7-4b65-a671-30902ae8987a"
+migrations_dir = "migrations"
+migrations_table = "d1_migrations"
 
 [[durable_objects.bindings]]
 name = "REALTIME"

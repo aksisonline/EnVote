@@ -132,43 +132,51 @@ async function handleApiRequest(request: Request, env: Env): Promise<Response> {
         })
       }
 
-      // Check if user exists
-      const existingUser = await env.DB.prepare("SELECT * FROM users WHERE email = ?").bind(email).first()
+      try {
+        // Check if user exists
+        const existingUser = await env.DB.prepare("SELECT * FROM users WHERE email = ?").bind(email).first()
 
-      if (existingUser) {
-        // Update name if different
-        if (existingUser.name !== name) {
-          await env.DB.prepare("UPDATE users SET name = ?, updated_at = CURRENT_TIMESTAMP WHERE email = ?")
-            .bind(name, email)
-            .run()
+        if (existingUser) {
+          // Update name if different
+          if (existingUser.name !== name) {
+            await env.DB.prepare("UPDATE users SET name = ?, updated_at = CURRENT_TIMESTAMP WHERE email = ?")
+              .bind(name, email)
+              .run()
+          }
+          return new Response(
+            JSON.stringify({
+              id: existingUser.id,
+              email: existingUser.email,
+              name: name,
+            }),
+            { headers: corsHeaders },
+          )
         }
+
+        // Create new user
+        const userId = crypto.randomUUID()
+        await env.DB.prepare(`
+          INSERT INTO users (id, email, name, created_at, updated_at)
+          VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        `)
+          .bind(userId, email, name)
+          .run()
+
         return new Response(
           JSON.stringify({
-            id: existingUser.id,
-            email: existingUser.email,
-            name: name,
+            id: userId,
+            email,
+            name,
           }),
           { headers: corsHeaders },
         )
+      } catch (dbError) {
+        console.error("Database error in user creation:", dbError)
+        return new Response(JSON.stringify({ error: "Database error: " + (dbError as Error).message }), {
+          status: 500,
+          headers: corsHeaders,
+        })
       }
-
-      // Create new user
-      const userId = crypto.randomUUID()
-      await env.DB.prepare(`
-        INSERT INTO users (id, email, name, created_at, updated_at)
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-      `)
-        .bind(userId, email, name)
-        .run()
-
-      return new Response(
-        JSON.stringify({
-          id: userId,
-          email,
-          name,
-        }),
-        { headers: corsHeaders },
-      )
     }
 
     // Events API

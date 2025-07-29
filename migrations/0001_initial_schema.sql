@@ -1,5 +1,21 @@
+-- Drop all existing tables to start fresh
+DROP TABLE IF EXISTS user_responses;
+DROP TABLE IF EXISTS task_options;
+DROP TABLE IF EXISTS tasks;
+DROP TABLE IF EXISTS user_sessions;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS events;
+
+-- Drop all existing indexes
+DROP INDEX IF EXISTS idx_events_name;
+DROP INDEX IF EXISTS idx_user_sessions_event;
+DROP INDEX IF EXISTS idx_tasks_event;
+DROP INDEX IF EXISTS idx_task_options_task;
+DROP INDEX IF EXISTS idx_user_responses_user;
+DROP INDEX IF EXISTS idx_user_responses_task;
+
 -- Create events table
-CREATE TABLE IF NOT EXISTS events (
+CREATE TABLE events (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   name TEXT NOT NULL UNIQUE,
   title TEXT NOT NULL,
@@ -13,15 +29,16 @@ CREATE TABLE IF NOT EXISTS events (
 );
 
 -- Create users table
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   email TEXT NOT NULL,
   name TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create user_sessions table
-CREATE TABLE IF NOT EXISTS user_sessions (
+CREATE TABLE user_sessions (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   user_id TEXT NOT NULL,
   event_id TEXT NOT NULL,
@@ -34,7 +51,7 @@ CREATE TABLE IF NOT EXISTS user_sessions (
 );
 
 -- Create tasks table
-CREATE TABLE IF NOT EXISTS tasks (
+CREATE TABLE tasks (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   event_id TEXT NOT NULL,
   title TEXT NOT NULL,
@@ -51,7 +68,7 @@ CREATE TABLE IF NOT EXISTS tasks (
 );
 
 -- Create task_options table
-CREATE TABLE IF NOT EXISTS task_options (
+CREATE TABLE task_options (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   task_id TEXT NOT NULL,
   text TEXT NOT NULL,
@@ -62,7 +79,7 @@ CREATE TABLE IF NOT EXISTS task_options (
 );
 
 -- Create user_responses table
-CREATE TABLE IF NOT EXISTS user_responses (
+CREATE TABLE user_responses (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   user_id TEXT NOT NULL,
   task_id TEXT NOT NULL,
@@ -76,9 +93,9 @@ CREATE TABLE IF NOT EXISTS user_responses (
 );
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_events_name ON events(name);
-CREATE INDEX IF NOT EXISTS idx_user_sessions_event ON user_sessions(event_id);
-CREATE INDEX IF NOT EXISTS idx_tasks_event ON tasks(event_id);
-CREATE INDEX IF NOT EXISTS idx_task_options_task ON task_options(task_id);
-CREATE INDEX IF NOT EXISTS idx_user_responses_user ON user_responses(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_responses_task ON user_responses(task_id);
+CREATE INDEX idx_events_name ON events(name);
+CREATE INDEX idx_user_sessions_event ON user_sessions(event_id);
+CREATE INDEX idx_tasks_event ON tasks(event_id);
+CREATE INDEX idx_task_options_task ON task_options(task_id);
+CREATE INDEX idx_user_responses_user ON user_responses(user_id);
+CREATE INDEX idx_user_responses_task ON user_responses(task_id);
