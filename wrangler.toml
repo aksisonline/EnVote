@@ -1,13 +1,13 @@
-name = "polling-quiz-app"
+name = "envote-app"
 main = "src/worker.ts"
 compatibility_date = "2024-01-15"
 
 [env.production]
-name = "polling-quiz-app"
+name = "envote-app"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "polling-quiz-db"
+database_name = "envote-db"
 database_id = "your-database-id"
 
 [durable_objects]

@@ -8,8 +8,8 @@ import { ThemeProvider } from "next-themes"
 import { Inter as inter } from "next/font/google"
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
+  title: "EnVote - Real-Time Polling & Quiz Platform",
+  description: "Create engaging live polls, quizzes, and voting sessions with real-time results",
   generator: "v0.dev",
 }
 
