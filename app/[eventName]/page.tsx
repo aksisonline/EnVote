@@ -79,8 +79,8 @@ export default function EventPage() {
 
   const fetchEvent = async () => {
     try {
-      const event = await cloudflareClient.getEvent(eventName)
-      setEvent(event)
+      const eventData = await cloudflareClient.getEvent(eventName)
+      setEvent(eventData)
     } catch (error) {
       console.error("Error fetching event:", error)
     } finally {
@@ -132,11 +132,11 @@ export default function EventPage() {
 
   const handleVoteBalanceUpdate = async (newBalance: number) => {
     setUserVoteBalance(newBalance)
-    // The balance is already updated in the task modal
   }
 
-  const handleAuthSuccess = () => {
+  const handleJoinSuccess = () => {
     setShowAuthModal(false)
+    // The useEffect will handle joining the event once user is set
   }
 
   if (loading) {
@@ -178,7 +178,13 @@ export default function EventPage() {
           </CardContent>
         </Card>
 
-        <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} onSuccess={handleAuthSuccess} />
+        <AuthModal
+          open={showAuthModal}
+          onOpenChange={setShowAuthModal}
+          onSuccess={handleJoinSuccess}
+          mode="join"
+          eventTitle={event.title}
+        />
       </div>
     )
   }

@@ -1,21 +1,40 @@
 #!/bin/bash
 
-# Setup cron job to clean up old data every day at 2 AM
-# This script should be run on your server or CI/CD pipeline
+# Setup script for automated data cleanup
+# This script sets up a cron job to run the cleanup daily at 2 AM
+
+echo "Setting up EnVote data cleanup cron job..."
+
+# Create the cleanup log table if it doesn't exist
+wrangler d1 execute envote-db --command="
+CREATE TABLE IF NOT EXISTS cleanup_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  cleaned_at TEXT NOT NULL,
+  description TEXT
+);"
 
 # Create the cleanup script
 cat > /tmp/envote-cleanup.sh << 'EOF'
 #!/bin/bash
+# EnVote automated cleanup script
+# This script runs the SQL cleanup and logs the results
 
-# Set your database details
-DB_NAME="envote-db"
-WRANGLER_CONFIG_PATH="/path/to/your/wrangler.toml"
+LOG_FILE="/var/log/envote-cleanup.log"
+SQL_FILE="/path/to/your/project/scripts/02-cleanup-old-data.sql"
+
+echo "$(date): Starting EnVote cleanup..." >> $LOG_FILE
 
 # Run the cleanup SQL script
-wrangler d1 execute $DB_NAME --file=/path/to/scripts/02-cleanup-old-data.sql
+wrangler d1 execute envote-db --file="$SQL_FILE" >> $LOG_FILE 2>&1
 
-# Log the cleanup
-echo "$(date): EnVote database cleanup completed" >> /var/log/envote-cleanup.log
+if [ $? -eq 0 ]; then
+    echo "$(date): Cleanup completed successfully" >> $LOG_FILE
+else
+    echo "$(date): Cleanup failed with error code $?" >> $LOG_FILE
+fi
+
+echo "$(date): Cleanup process finished" >> $LOG_FILE
+echo "----------------------------------------" >> $LOG_FILE
 EOF
 
 # Make the script executable
@@ -26,6 +45,12 @@ chmod +x /tmp/envote-cleanup.sh
 
 echo "Cron job setup complete. The database will be cleaned up daily at 2 AM."
 echo "Cleanup logs will be stored in /var/log/envote-cleanup.log"
+
+# Create initial log file
+touch /var/log/envote-cleanup.log
+chmod 644 /var/log/envote-cleanup.log
+
+echo "Setup finished. You can check the cron job with: crontab -l"
 
 # Alternative: Using GitHub Actions (if using GitHub)
 cat > .github/workflows/cleanup.yml << 'EOF'

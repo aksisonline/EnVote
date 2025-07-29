@@ -1,8 +1,10 @@
+"use client"
+
 class CloudflareClient {
   private baseUrl: string
 
   constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://envote-app.teamscientify2016.workers.dev"
+    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || ""
   }
 
   async createOrGetUser(email: string, name: string) {
@@ -88,43 +90,36 @@ class CloudflareClient {
     return response.json()
   }
 
+  // Placeholder methods for future implementation
   async getUserSession(userId: string, eventId: string) {
-    // Implementation for getting user session
     return null
   }
 
   async joinEvent(userId: string, eventId: string) {
-    // Implementation for joining event
     return { vote_balance: 10 }
   }
 
   async getUserResponses(userId: string, eventId: string) {
-    // Implementation for getting user responses
     return []
   }
 
   async getTaskWithOptions(taskId: string) {
-    // Implementation for getting task with options
     return null
   }
 
   async createTask(eventId: string, taskData: any) {
-    // Implementation for creating task
     return null
   }
 
   async startTask(taskId: string) {
-    // Implementation for starting task
     return null
   }
 
   async endTask(taskId: string) {
-    // Implementation for ending task
     return null
   }
 
   async getEventTasks(eventId: string) {
-    // Implementation for getting event tasks
     return []
   }
 }

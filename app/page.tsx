@@ -14,6 +14,12 @@ export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { user } = useAuth()
 
+  const handleSignInSuccess = () => {
+    setShowAuthModal(false)
+    // Optionally redirect to dashboard after sign in
+    window.location.href = "/dashboard"
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
@@ -190,7 +196,7 @@ export default function HomePage() {
         </div>
       </footer>
 
-      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} onSuccess={() => setShowAuthModal(false)} />
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} onSuccess={handleSignInSuccess} mode="signin" />
     </div>
   )
 }

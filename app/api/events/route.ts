@@ -1,49 +1,38 @@
 import { type NextRequest, NextResponse } from "next/server"
 
+// In-memory storage for development (replace with D1 in production)
+const events = new Map()
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, title, description, creator_email, creator_name, max_vote_balance } = body
+    const { name, title, description, creator_email, creator_name, max_vote_balance = 10 } = body
 
     if (!name || !title || !creator_email || !creator_name) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    // Sanitize event name for URL
-    const sanitizedName = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "")
-
-    if (!sanitizedName) {
-      return NextResponse.json({ error: "Invalid event name" }, { status: 400 })
+    // Check if event name already exists
+    const existingEvent = Array.from(events.values()).find((e: any) => e.name === name)
+    if (existingEvent) {
+      return NextResponse.json({ error: "Event name already exists" }, { status: 409 })
     }
 
-    // Create event via API call to worker
-    const workerUrl = process.env.NEXT_PUBLIC_API_URL || "https://envote-app.teamscientify2016.workers.dev"
-
-    const response = await fetch(`${workerUrl}/api/events`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: sanitizedName,
-        title,
-        description: description || null,
-        creator_email,
-        creator_name,
-        max_vote_balance: max_vote_balance || 10,
-      }),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      return NextResponse.json({ error: error.message || "Failed to create event" }, { status: response.status })
+    const event = {
+      id: crypto.randomUUID(),
+      name,
+      title,
+      description: description || null,
+      creator_email,
+      creator_name,
+      max_vote_balance,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
 
-    const event = await response.json()
+    events.set(event.id, event)
+
     return NextResponse.json(event)
   } catch (error) {
     console.error("Error creating event:", error)
@@ -53,30 +42,15 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const creator_email = searchParams.get("creator_email")
+    const url = new URL(request.url)
+    const creator_email = url.searchParams.get("creator_email")
 
-    if (!creator_email) {
-      return NextResponse.json({ error: "Missing creator_email parameter" }, { status: 400 })
+    if (creator_email) {
+      const userEvents = Array.from(events.values()).filter((e: any) => e.creator_email === creator_email)
+      return NextResponse.json(userEvents)
     }
 
-    // Fetch events via API call to worker
-    const workerUrl = process.env.NEXT_PUBLIC_API_URL || "https://envote-app.teamscientify2016.workers.dev"
-
-    const response = await fetch(`${workerUrl}/api/events?creator_email=${encodeURIComponent(creator_email)}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      return NextResponse.json({ error: error.message || "Failed to fetch events" }, { status: response.status })
-    }
-
-    const events = await response.json()
-    return NextResponse.json(events)
+    return NextResponse.json(Array.from(events.values()))
   } catch (error) {
     console.error("Error fetching events:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
