@@ -1,22 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
 
+// In-memory storage for development (replace with D1 in production)
+const events = new Map()
+
 export async function GET(request: NextRequest, { params }: { params: { name: string } }) {
   try {
-    const { name } = params
+    const eventName = params.name
 
-    // In a real implementation, you would query Cloudflare D1 here
-    // For now, we'll simulate the database operation
-    const event = {
-      id: crypto.randomUUID(),
-      name,
-      title: `Event: ${name}`,
-      description: "Sample event description",
-      creator_email: "creator@example.com",
-      creator_name: "Event Creator",
-      max_vote_balance: 10,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+    // Find event by name
+    const event = Array.from(events.values()).find((e: any) => e.name === eventName)
+
+    if (!event) {
+      return NextResponse.json({ success: false, error: "Event not found" }, { status: 404 })
     }
 
     return NextResponse.json({
@@ -25,6 +20,37 @@ export async function GET(request: NextRequest, { params }: { params: { name: st
     })
   } catch (error) {
     console.error("Error fetching event:", error)
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 })
+  }
+}
+
+export async function PATCH(request: NextRequest, { params }: { params: { name: string } }) {
+  try {
+    const eventName = params.name
+    const body = await request.json()
+
+    // Find event by name
+    const event = Array.from(events.values()).find((e: any) => e.name === eventName)
+
+    if (!event) {
+      return NextResponse.json({ success: false, error: "Event not found" }, { status: 404 })
+    }
+
+    // Update event
+    const updatedEvent = {
+      ...event,
+      ...body,
+      updated_at: new Date().toISOString(),
+    }
+
+    events.set(event.id, updatedEvent)
+
+    return NextResponse.json({
+      success: true,
+      data: updatedEvent,
+    })
+  } catch (error) {
+    console.error("Error updating event:", error)
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 })
   }
 }

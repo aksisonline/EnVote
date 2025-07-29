@@ -58,12 +58,27 @@ class CloudflareClient {
     return this.request(`/events/by-id/${id}`)
   }
 
+  async getUserEvents(creator_email: string) {
+    return this.request(`/events?creator_email=${encodeURIComponent(creator_email)}`)
+  }
+
+  async updateEvent(name: string, updates: any) {
+    return this.request(`/events/${name}`, {
+      method: "PATCH",
+      body: JSON.stringify(updates),
+    })
+  }
+
   // Users
   async createOrGetUser(email: string, name: string) {
     return this.request("/users", {
       method: "POST",
       body: JSON.stringify({ email, name }),
     })
+  }
+
+  async getUser(email: string) {
+    return this.request(`/users?email=${encodeURIComponent(email)}`)
   }
 
   // User Sessions
