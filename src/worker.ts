@@ -4,8 +4,10 @@ import type {
   DurableObjectNamespace,
   DurableObjectState,
   WebSocket,
+  ExportedHandler
 } from "@cloudflare/workers-types"
 
+// WebSocketPair is available globally in the Workers runtime
 declare const WebSocketPair: {
   new (): { 0: WebSocket; 1: WebSocket }
 }

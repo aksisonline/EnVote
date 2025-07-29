@@ -13,4 +13,4 @@ class_name = "RealtimeHandler"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["RealtimeHandler"]
+new_sqlite_classes = ["RealtimeHandler"]
