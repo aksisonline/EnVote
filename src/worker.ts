@@ -1,10 +1,14 @@
-import {
-  type D1Database,
-  type DurableObjectNamespace,
-  type DurableObjectState,
-  type WebSocket,
-  WebSocketPair,
-} from "workers-types"
+// Worker implementation using @cloudflare/workers-types
+import type {
+  D1Database,
+  DurableObjectNamespace,
+  DurableObjectState,
+  WebSocket,
+} from "@cloudflare/workers-types"
+
+declare const WebSocketPair: {
+  new (): { 0: WebSocket; 1: WebSocket }
+}
 
 export interface Env {
   DB: D1Database
@@ -18,7 +22,7 @@ export class RealtimeHandler {
 
   constructor(
     private state: DurableObjectState,
-    private env: Env,
+    private env: Env
   ) {}
 
   async fetch(request: Request): Promise<Response> {
@@ -39,7 +43,7 @@ export class RealtimeHandler {
       const [client, server] = Object.values(webSocketPair)
 
       const sessionId = crypto.randomUUID()
-      this.sessions.set(sessionId, server)
+      this.sessions.set(sessionId, server as WebSocket)
 
       // Add to event sessions
       if (!this.eventSessions.has(eventId)) {
@@ -47,8 +51,8 @@ export class RealtimeHandler {
       }
       this.eventSessions.get(eventId)!.add(sessionId)
 
-      server.accept()
-      server.addEventListener("close", () => {
+      ;(server as WebSocket).accept()
+      ;(server as WebSocket).addEventListener("close", () => {
         this.sessions.delete(sessionId)
         this.eventSessions.get(eventId)?.delete(sessionId)
       })
@@ -56,7 +60,7 @@ export class RealtimeHandler {
       return new Response(null, {
         status: 101,
         webSocket: client,
-      })
+      } as ResponseInit)
     }
 
     return new Response("Not found", { status: 404 })
@@ -101,7 +105,7 @@ export default {
     if (url.pathname.startsWith("/ws")) {
       const id = env.REALTIME.idFromName("realtime")
       const obj = env.REALTIME.get(id)
-      return obj.fetch(request)
+      return obj.fetch(request as any) as any
     }
 
     // API Routes would go here
