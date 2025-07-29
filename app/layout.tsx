@@ -5,7 +5,9 @@ import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 import { RealTimeProvider } from "@/components/real-time-provider"
 import { ThemeProvider } from "next-themes"
-import { Inter as inter } from "next/font/google"
+import { Inter } from "next/font/google"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "EnVote - Real-Time Polling & Quiz Platform",

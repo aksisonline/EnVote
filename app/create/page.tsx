@@ -46,10 +46,10 @@ export default function CreateEventPage() {
         max_vote_balance: maxVoteBalance,
       })
 
-      router.push(`/${event.name}/dashboard`)
+      router.push(`/${(event as any).name}/dashboard`)
     } catch (error) {
       console.error("Error creating event:", error)
-      if (error.message.includes("already exists")) {
+      if (error instanceof Error && error.message.includes("already exists")) {
         alert("Event name already exists. Please choose a different name.")
       } else {
         alert("Failed to create event. Please try again.")
@@ -96,7 +96,7 @@ export default function CreateEventPage() {
                   className="h-12"
                 />
                 <p className="text-sm text-gray-500">
-                  This will be your event URL: {window.location.origin}/
+                  This will be your event URL: {typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com'}/
                   {eventName.toLowerCase().replace(/[^a-z0-9]/g, "-")}
                 </p>
               </div>
