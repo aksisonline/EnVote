@@ -21,6 +21,7 @@ import Link from "next/link"
 import { cloudflareClient } from "@/lib/cloudflare-client"
 import { useAuth } from "@/lib/auth"
 import { AuthModal } from "@/components/auth-modal"
+import { UserMenu } from "@/components/user-menu"
 
 interface Event {
   id: string
@@ -152,8 +153,30 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="border-b bg-white">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">E</span>
+            </div>
+            <span className="text-xl font-bold text-gray-900">EnVote</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Button variant="outline" asChild>
+              <Link href="/">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Back to Home
+              </Link>
+            </Button>
+            <UserMenu />
+          </div>
+        </div>
+      </header>
+
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
+        {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
@@ -161,90 +184,82 @@ export default function Dashboard() {
               <p className="text-gray-600 mt-1">Welcome back, {user.name}</p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button variant="outline" asChild>
-                <Link href="/">
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Back to Home
-                </Link>
-              </Button>
-              <Dialog open={showCreateEvent} onOpenChange={setShowCreateEvent}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create Event
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Create New Event</DialogTitle>
-                    <DialogDescription>Set up a new polling or quiz event for your audience</DialogDescription>
-                  </DialogHeader>
+            <Dialog open={showCreateEvent} onOpenChange={setShowCreateEvent}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Event
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Create New Event</DialogTitle>
+                  <DialogDescription>Set up a new polling or quiz event for your audience</DialogDescription>
+                </DialogHeader>
 
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="eventName">Event Name (URL)</Label>
-                        <Input
-                          id="eventName"
-                          placeholder="my-awesome-event"
-                          value={eventName}
-                          onChange={(e) => setEventName(e.target.value)}
-                        />
-                        <p className="text-sm text-gray-500">
-                          This will be your event URL: /{eventName.toLowerCase().replace(/[^a-z0-9]/g, "-")}
-                        </p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="eventTitle">Event Title</Label>
-                        <Input
-                          id="eventTitle"
-                          placeholder="My Awesome Event"
-                          value={eventTitle}
-                          onChange={(e) => setEventTitle(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="eventDescription">Description (Optional)</Label>
-                      <Textarea
-                        id="eventDescription"
-                        placeholder="Describe your event..."
-                        value={eventDescription}
-                        onChange={(e) => setEventDescription(e.target.value)}
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="maxVoteBalance">Max Vote Balance</Label>
+                      <Label htmlFor="eventName">Event Name (URL)</Label>
                       <Input
-                        id="maxVoteBalance"
-                        type="number"
-                        min="1"
-                        max="100"
-                        value={maxVoteBalance}
-                        onChange={(e) => setMaxVoteBalance(Number(e.target.value))}
+                        id="eventName"
+                        placeholder="my-awesome-event"
+                        value={eventName}
+                        onChange={(e) => setEventName(e.target.value)}
                       />
                       <p className="text-sm text-gray-500">
-                        Maximum votes each participant can use across all multi-vote sessions
+                        This will be your event URL: /{eventName.toLowerCase().replace(/[^a-z0-9]/g, "-")}
                       </p>
                     </div>
 
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => setShowCreateEvent(false)} disabled={creating}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleCreateEvent} disabled={creating}>
-                        {creating ? "Creating..." : "Create Event"}
-                      </Button>
+                    <div className="space-y-2">
+                      <Label htmlFor="eventTitle">Event Title</Label>
+                      <Input
+                        id="eventTitle"
+                        placeholder="My Awesome Event"
+                        value={eventTitle}
+                        onChange={(e) => setEventTitle(e.target.value)}
+                      />
                     </div>
                   </div>
-                </DialogContent>
-              </Dialog>
-            </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="eventDescription">Description (Optional)</Label>
+                    <Textarea
+                      id="eventDescription"
+                      placeholder="Describe your event..."
+                      value={eventDescription}
+                      onChange={(e) => setEventDescription(e.target.value)}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="maxVoteBalance">Max Vote Balance</Label>
+                    <Input
+                      id="maxVoteBalance"
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={maxVoteBalance}
+                      onChange={(e) => setMaxVoteBalance(Number(e.target.value))}
+                    />
+                    <p className="text-sm text-gray-500">
+                      Maximum votes each participant can use across all multi-vote sessions
+                    </p>
+                  </div>
+
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setShowCreateEvent(false)} disabled={creating}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleCreateEvent} disabled={creating}>
+                      {creating ? "Creating..." : "Create Event"}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
