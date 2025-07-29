@@ -38,17 +38,17 @@ export default function CreateEventPage() {
 
     setCreating(true)
     try {
-      const newEvent = await cloudflareClient.createEvent({
+      const newEvent = (await cloudflareClient.createEvent({
         name: eventName.toLowerCase().replace(/[^a-z0-9]/g, "-"),
         title: eventTitle,
         description: eventDescription,
         creator_email: user.email,
         creator_name: user.name,
         max_vote_balance: maxVoteBalance,
-      })
+      })) as { name: string };
 
       // Navigate to the new event's dashboard
-      router.push(`/${newEvent.name}/dashboard`)
+      router.push(`/${newEvent.name}/dashboard`);
     } catch (error: any) {
       console.error("Error creating event:", error)
       alert(error.message || "Failed to create event. Please try again.")
