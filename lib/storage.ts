@@ -25,8 +25,11 @@ try {
 function loadData(file: string): Map<string, any> {
   try {
     if (existsSync(file)) {
-      const data = JSON.parse(readFileSync(file, 'utf8'))
-      return new Map(Object.entries(data))
+      const content = readFileSync(file, 'utf8').trim()
+      if (content && content !== '{}') {
+        const data = JSON.parse(content)
+        return new Map(Object.entries(data))
+      }
     }
   } catch (error) {
     console.warn(`Could not load data from ${file}:`, error)
@@ -44,11 +47,15 @@ function saveData(map: Map<string, any>, file: string) {
   }
 }
 
+// Initialize storage with data loaded from files
 export const events = loadData(eventsFile)
 export const tasks = loadData(tasksFile)
 export const taskOptions = loadData(taskOptionsFile)
 export const users = loadData(usersFile)
 export const userSessions = loadData(userSessionsFile)
+
+// Track if auto-save is already started (prevent multiple intervals)
+let autoSaveStarted = false
 
 // Save data when the process exits
 const saveAll = () => {
@@ -59,10 +66,15 @@ const saveAll = () => {
   saveData(userSessions, userSessionsFile)
 }
 
-// Auto-save periodically
-setInterval(saveAll, 5000) // Save every 5 seconds
+// Start auto-save only once
+if (!autoSaveStarted) {
+  autoSaveStarted = true
+  
+  // Auto-save periodically
+  setInterval(saveAll, 10000) // Save every 10 seconds
 
-// Save on process exit
-process.on('exit', saveAll)
-process.on('SIGTERM', saveAll)
-process.on('SIGINT', saveAll)
+  // Save on process exit
+  process.on('exit', saveAll)
+  process.on('SIGTERM', saveAll)
+  process.on('SIGINT', saveAll)
+}

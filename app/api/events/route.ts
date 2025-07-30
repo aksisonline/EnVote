@@ -42,6 +42,15 @@ export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url)
     const creator_email = url.searchParams.get("creator_email")
+    const debug = url.searchParams.get("debug")
+
+    if (debug) {
+      return NextResponse.json({
+        eventsSize: events.size,
+        allEvents: Array.from(events.values()),
+        eventsKeys: Array.from(events.keys())
+      })
+    }
 
     if (creator_email) {
       const userEvents = Array.from(events.values()).filter((e: any) => e.creator_email === creator_email)

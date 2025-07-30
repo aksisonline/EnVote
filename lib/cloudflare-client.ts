@@ -90,6 +90,83 @@ class CloudflareClient {
     return response.json()
   }
 
+  async deleteEvent(eventName: string) {
+    const response = await fetch(`/api/events/${encodeURIComponent(eventName)}`, {
+      method: "DELETE",
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to delete event")
+    }
+
+    return response.json()
+  }
+
+  async getUserSession(userId: string, eventId: string) {
+    const response = await fetch(`/api/user-sessions?user_id=${encodeURIComponent(userId)}&event_id=${encodeURIComponent(eventId)}`)
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null // No session found
+      }
+      const error = await response.json()
+      throw new Error(error.error || "Failed to get user session")
+    }
+
+    const result = await response.json()
+    return result.data
+  }
+
+  async joinEvent(userId: string, eventId: string) {
+    const response = await fetch("/api/user-sessions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user_id: userId, event_id: eventId }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to join event")
+    }
+
+    const result = await response.json()
+    return result.data
+  }
+
+  async getUserResponses(userId: string, eventId: string) {
+    const response = await fetch(`/api/user-responses?user_id=${encodeURIComponent(userId)}&event_id=${encodeURIComponent(eventId)}`)
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to get user responses")
+    }
+
+    const result = await response.json()
+    return result.data
+  }
+
+  async getTaskWithOptions(taskId: string) {
+    const response = await fetch(`/api/tasks/${taskId}`)
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to get task")
+    }
+
+    const result = await response.json()
+    return result.data
+  }
+
+  connectToEvent(eventId: string, callback: (data: any) => void): WebSocket | null {
+    // For development, return null since we don't have WebSocket server
+    // In production, this would connect to a WebSocket server
+    console.log(`Would connect to WebSocket for event: ${eventId}`)
+    return null
+  }
+
   async createTask(taskData: {
     event_id: string
     title: string
