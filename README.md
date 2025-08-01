@@ -165,14 +165,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Icons from [Lucide React](https://lucide.dev/)
 - Real-time features powered by [Cloudflare Workers](https://workers.cloudflare.com/)
 
-## 📞 Support
-
-If you have any questions or need help getting started:
-
-- 📧 **Email**: [support@envote.com](mailto:support@envote.com)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/aksisonline/EnVote/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/aksisonline/EnVote/discussions)
-
 ---
 
 Made with ❤️ for better audience engagement
