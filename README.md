@@ -49,8 +49,8 @@ cp .env.example .env.local
 
 4. Configure your environment variables:
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_WS_URL=
 ```
 
 5. Run the development server:
