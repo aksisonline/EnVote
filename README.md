@@ -66,7 +66,6 @@ EnVote is built with modern web technologies for performance and scalability:
 
 - **Frontend**: Next.js 15 with TypeScript
 - **Styling**: Tailwind CSS with Radix UI components
-- **Authentication**: Supabase Auth
 - **Real-time**: Cloudflare Workers with Durable Objects
 - **Database**: Cloudflare D1 (SQLite)
 - **Deployment**: Vercel (frontend) + Cloudflare Workers (backend)
