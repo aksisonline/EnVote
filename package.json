@@ -1,7 +1,27 @@
 {
-  "name": "my-v0-project",
-  "version": "0.1.0",
-  "private": true,
+  "name": "envote",
+  "version": "1.0.0",
+  "description": "A modern, real-time polling and voting platform",
+  "author": "EnVote Team",
+  "license": "MIT",
+  "homepage": "https://github.com/aksisonline/EnVote",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aksisonline/EnVote.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aksisonline/EnVote/issues"
+  },
+  "keywords": [
+    "polling",
+    "voting",
+    "real-time",
+    "quiz",
+    "interactive",
+    "nextjs",
+    "cloudflare"
+  ],
+  "private": false,
   "scripts": {
     "build": "next build",
     "dev": "next dev",
