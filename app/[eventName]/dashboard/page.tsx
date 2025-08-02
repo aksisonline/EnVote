@@ -200,6 +200,25 @@ export default function EventDashboard() {
     alert("Event URL copied to clipboard!")
   }
 
+  const handleDeleteEvent = async () => {
+    if (!event) return
+
+    const confirmed = confirm(
+      `Are you absolutely sure you want to delete "${event.title}"? This action cannot be undone.`
+    )
+
+    if (!confirmed) return
+
+    try {
+      await cloudflareClient.deleteEvent(eventName)
+      alert("Event deleted successfully!")
+      router.push("/dashboard")
+    } catch (error) {
+      console.error("Error deleting event:", error)
+      alert("Failed to delete event. Please try again.")
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -533,40 +552,99 @@ export default function EventDashboard() {
 
           {/* Settings Tab */}
           <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Event Settings</CardTitle>
-                <CardDescription>Manage your event configuration</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Label>Event URL</Label>
-                    <div className="flex items-center gap-2">
-                      <Input value={`${window.location.origin}/${eventName}`} readOnly />
-                      <Button variant="outline" onClick={copyEventUrl}>
-                        <Copy className="h-4 w-4" />
-                      </Button>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Event Settings</CardTitle>
+                  <CardDescription>Manage your event configuration</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <Label>Event URL</Label>
+                      <div className="flex items-center gap-2">
+                        <Input value={`${window.location.origin}/${eventName}`} readOnly />
+                        <Button variant="outline" onClick={copyEventUrl}>
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Max Vote Balance</Label>
+                      <Input value={event.max_vote_balance} readOnly />
+                      <p className="text-sm text-gray-500">
+                        Maximum votes each participant can use across all multi-vote sessions
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Event Status</Label>
+                      <Badge variant={event.is_active ? "default" : "secondary"}>
+                        {event.is_active ? "Active" : "Inactive"}
+                      </Badge>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
 
-                  <div className="space-y-2">
-                    <Label>Max Vote Balance</Label>
-                    <Input value={event.max_vote_balance} readOnly />
-                    <p className="text-sm text-gray-500">
-                      Maximum votes each participant can use across all multi-vote sessions
-                    </p>
+              <Card className="border-red-200">
+                <CardHeader>
+                  <CardTitle className="text-red-800">Danger Zone</CardTitle>
+                  <CardDescription className="text-red-600">
+                    These actions cannot be undone. Please proceed with caution.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg">
+                      <div className="space-y-1">
+                        <h4 className="font-medium text-red-800">Delete Event</h4>
+                        <p className="text-sm text-red-600">
+                          Permanently delete this event and all associated data including tasks, responses, and analytics.
+                        </p>
+                      </div>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Event
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Are you absolutely sure?</DialogTitle>
+                            <DialogDescription>
+                              This action cannot be undone. This will permanently delete the event "{event.title}" and 
+                              remove all associated data from our servers including:
+                              <br /><br />
+                              • All tasks and polls
+                              <br />
+                              • All participant responses
+                              <br />
+                              • All analytics data
+                              <br />
+                              • Event settings and configuration
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="flex items-center space-x-2">
+                            <Button variant="destructive" onClick={handleDeleteEvent} className="flex-1">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Yes, delete event permanently
+                            </Button>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" className="flex-1">
+                                Cancel
+                              </Button>
+                            </DialogTrigger>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label>Event Status</Label>
-                    <Badge variant={event.is_active ? "default" : "secondary"}>
-                      {event.is_active ? "Active" : "Inactive"}
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

@@ -1,11 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { events, tasks, taskOptions, userSessions } from "@/lib/storage"
 
-// In-memory storage for development (replace with D1 in production)
-const events = new Map()
-
-export async function GET(request: NextRequest, { params }: { params: { name: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ name: string }> }) {
   try {
-    const eventName = params.name
+    const { name: eventName } = await params
 
     const event = Array.from(events.values()).find((e: any) => e.name === eventName)
 
@@ -20,9 +18,9 @@ export async function GET(request: NextRequest, { params }: { params: { name: st
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { name: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ name: string }> }) {
   try {
-    const eventName = params.name
+    const { name: eventName } = await params
     const body = await request.json()
 
     const event = Array.from(events.values()).find((e: any) => e.name === eventName)
@@ -43,6 +41,40 @@ export async function PUT(request: NextRequest, { params }: { params: { name: st
     return NextResponse.json(updatedEvent)
   } catch (error) {
     console.error("Error updating event:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ name: string }> }) {
+  try {
+    const { name: eventName } = await params
+
+    const event = Array.from(events.values()).find((e: any) => e.name === eventName)
+
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 })
+    }
+
+    // Delete related data
+    // Delete all tasks for this event
+    const eventTasks = Array.from(tasks.values()).filter((task: any) => task.event_id === event.id)
+    eventTasks.forEach((task: any) => {
+      tasks.delete(task.id)
+      // Delete task options for this task
+      const taskOptionsList = Array.from(taskOptions.values()).filter((option: any) => option.task_id === task.id)
+      taskOptionsList.forEach((option: any) => taskOptions.delete(option.id))
+    })
+
+    // Delete user sessions for this event
+    const eventSessions = Array.from(userSessions.values()).filter((session: any) => session.event_id === event.id)
+    eventSessions.forEach((session: any) => userSessions.delete(session.id))
+
+    // Delete the event
+    events.delete(event.id)
+
+    return NextResponse.json({ success: true, message: "Event deleted successfully" })
+  } catch (error) {
+    console.error("Error deleting event:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
